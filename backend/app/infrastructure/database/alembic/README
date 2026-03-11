@@ -1,0 +1,175 @@
+# Alembic Миграции
+
+Этот каталог содержит миграции базы данных для системы проверки дипломных работ.
+
+## Структура
+
+```
+alembic/
+├── env.py                 # Конфигурация окружения Alembic
+├── script.py.mako         # Шаблон для генерации миграций
+├── alembic.ini            # Файл конфигурации Alembic
+└── versions/              # Каталог с файлами миграций
+    └── initial_schema.py # Начальная миграция
+```
+
+## Настройка
+
+1. **Переменные окружения**
+
+   Установите переменную `DATABASE_URL` для подключения к базе данных:
+
+   ```bash
+   export DATABASE_URL="postgresql+asyncpg://user:password@localhost:5432/diplom_review"
+   ```
+
+   Или отредактируйте `sqlalchemy.url` в `alembic.ini`.
+
+2. **Инициализация (если это первый запуск)**
+
+   ```bash
+   # Из корневой директории backend/
+   alembic stamp head
+   ```
+
+## Команды
+
+### Создание новой миграции
+
+```bash
+# Автоматическая генерация на основе моделей
+alembic revision --autogenerate -m "Описание изменений"
+
+# Ручное создание пустой миграции
+alembic revision -m "Описание изменений"
+```
+
+### Применение миграций
+
+```bash
+# Применить все миграции до последней версии
+alembic upgrade head
+
+# Применить конкретную миграцию
+alembic upgrade <revision_id>
+
+# Применить миграцию на +1 шаг
+alembic upgrade +1
+```
+
+### Откат миграций
+
+```bash
+# Откатить все миграции
+alembic downgrade base
+
+# Откатить на одну миграцию
+alembic downgrade -1
+
+# Откатить до конкретной миграции
+alembic downgrade <revision_id>
+```
+
+### Просмотр истории
+
+```bash
+# Показать историю всех миграций
+alembic history
+
+# Показать текущую версию
+alembic current
+
+# Показать следующую версию
+alembic heads
+```
+
+### Генерация SQL без применения
+
+```bash
+# Сгенерировать SQL для upgrade
+alembic upgrade head --sql
+
+# Сгенерировать SQL для downgrade
+alembic downgrade -1 --sql
+```
+
+## Подход Table + Mapper
+
+В этом проекте используется подход `Table + Mapper` для SQLAlchemy моделей:
+
+- **Table**: описание структуры таблицы в БД (в файлах `models/*.py`)
+- **Mapper**: связывает Table с Python классом-сущностью
+- **Base**: общий метаданный класс для всех таблиц
+
+Пример модели:
+
+```python
+from sqlalchemy import Table, Column, String
+from sqlalchemy.orm import mapper
+from app.infrastructure.database.table import Base
+
+# Описание таблицы
+users_table = Table(
+    "users",
+    Base.metadata,
+    Column("id", String, primary_key=True),
+    Column("email", String(255), nullable=False),
+    ...
+)
+
+# Класс сущности
+class User:
+    def __init__(self, id: str, email: str, ...):
+        self.id = id
+        self.email = email
+        ...
+
+# Mapper: связывает Table с классом
+mapper(User, users_table)
+```
+
+## Созданные таблицы
+
+| Таблица  | Описание                              |
+|----------|---------------------------------------|
+| users    | Пользователи системы                  |
+| documents| Загруженные документы                 |
+| analyses | Результаты анализа                    |
+| reports  | Сгенерированные отчеты                |
+| history  | История версий документов             |
+
+## Важные примечания
+
+1. **Внешние ключи**: Таблицы создаются с правильными ограничениями внешних ключей
+2. **Индексы**: Созданы индексы для оптимизации запросов
+3. **Каскадное удаление**: При удалении записи удаляются связанные записи (ON DELETE CASCADE)
+4. **Проверки**: Добавлены CHECK constraints для валидации данных
+
+## Troubleshooting
+
+### Ошибка: "Target database is not up to date"
+
+```bash
+# Синхронизировать состояние базы с миграциями
+alembic stamp head
+```
+
+### Ошибка: "No module named 'app'"
+
+Убедитесь, что вы запускаете команды из правильной директории:
+
+```bash
+cd backend/
+alembic upgrade head
+```
+
+### Автогенерация не обнаруживает изменения
+
+1. Убедитесь, что модели импортированы в `env.py`
+2. Проверьте, что изменения отражены в `Table` описаниях
+3. Проверьте, что `target_metadata` в `env.py` содержит все таблицы
+
+## Ресурсы
+
+- [Alembic Documentation](https://alembic.sqlalchemy.org/)
+- [SQLAlchemy Documentation](https://docs.sqlalchemy.org/)
