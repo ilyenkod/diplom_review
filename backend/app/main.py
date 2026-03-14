@@ -9,13 +9,12 @@
 
 import asyncio
 import signal
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
 
 from fastapi import FastAPI
 
 from composites.app_composite import AppComposite
-
 
 # Глобальный композит приложения
 app_composite: AppComposite | None = None
@@ -49,12 +48,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         await app_composite.start()
 
         # Получаем FastAPI приложение из API композита
-        # (app_composite.api_composite.app обновит переданное приложение)
-        if app_composite.api_composite and app_composite.api_composite.app:
+        # (app_composite.api_app.app обновит переданное приложение)
+        if app_composite._api_composite and app_composite._api_composite.app:
             # Копируем состояние из созданного приложения
-            app.routes = app_composite.api_composite.app.routes
-            app.include_router = app_composite.api_composite.app.include_router
-            app.middleware = app_composite.api_composite.app.middleware
+            app.routes = app_composite._api_composite.app.routes
+            app.include_router = app_composite._api_composite.app.include_router
+            app.middleware = app_composite._api_composite.app.middleware
 
         yield
 

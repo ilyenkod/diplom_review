@@ -20,7 +20,6 @@ from sqlalchemy.dialects.postgresql import JSONB
 
 from .base import Base
 
-
 # ============================================================
 # Описание таблицы reports (SQLAlchemy Table)
 # ============================================================

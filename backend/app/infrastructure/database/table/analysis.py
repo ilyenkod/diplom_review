@@ -22,7 +22,6 @@ from sqlalchemy.dialects.postgresql import JSONB
 
 from .base import Base
 
-
 # ============================================================
 # Описание таблицы analyses (SQLAlchemy Table)
 # ============================================================

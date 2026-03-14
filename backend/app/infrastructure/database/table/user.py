@@ -9,16 +9,15 @@ from datetime import datetime
 
 from sqlalchemy import (
     Boolean,
+    CheckConstraint,
     Column,
     DateTime,
     Index,
     String,
     Table,
-    CheckConstraint,
 )
 
 from .base import Base
-
 
 # ============================================================
 # Описание таблицы users (SQLAlchemy Table)

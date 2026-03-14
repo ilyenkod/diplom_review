@@ -4,11 +4,11 @@ Domain сущности приложения.
 Содержит бизнес-логику предметной области, не зависящую от способа хранения.
 """
 
-from .user import User, UserRole
-from .document import Document, FileType
 from .analysis import Analysis, AnalysisStatus
-from .report import Report
+from .document import Document, FileType
 from .history import History
+from .report import Report
+from .user import User, UserRole
 
 __all__ = [
     # Сущности

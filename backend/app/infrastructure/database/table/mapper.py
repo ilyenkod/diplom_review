@@ -7,14 +7,13 @@ mapper использует автоматическое сопоставлен�
 
 from sqlalchemy.orm import mapper
 
-from app.core.domain import User, Document, Analysis, Report, History
+from app.core.domain import Analysis, Document, History, Report, User
 
-from .user import users_table
-from .document import documents_table
 from .analysis import analyses_table
-from .report import reports_table
+from .document import documents_table
 from .history import history_table
-
+from .report import reports_table
+from .user import users_table
 
 # ============================================================
 # Mapper: связывает Table с domain сущностью

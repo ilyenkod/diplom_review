@@ -5,7 +5,6 @@
 контекст выполнения миграций.
 """
 
-import asyncio
 from logging.config import fileConfig
 
 from alembic import context
@@ -31,6 +30,7 @@ if config.config_file_name is not None:
 # Метаданные для автоматической генерации миграций
 # ============================================================
 target_metadata = Base.metadata
+
 
 # ============================================================
 # Функция для получения URL базы данных

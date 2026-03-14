@@ -4,7 +4,7 @@
 Используется для создания пространства метаданных SQLAlchemy.
 """
 
-from sqlalchemy.orm import DeclarativeBase, declared_attr
+from sqlalchemy.orm import DeclarativeBase
 
 
 class Base(DeclarativeBase):
@@ -13,4 +13,5 @@ class Base(DeclarativeBase):
 
     Используется для общего метаданного пространства.
     """
+
     pass

@@ -7,13 +7,13 @@
 - Domain: бизнес-логика сущностей (в app.core.domain)
 """
 
-from .base import Base
-from .user import users_table
-from .document import documents_table
 from .analysis import analyses_table
-from .report import reports_table
+from .base import Base
+from .document import documents_table
 from .history import history_table
-from .mapper import mapper  # noqa: F401
+from .mapper import mapper
+from .report import reports_table
+from .user import users_table
 
 __all__ = [
     # Базовый класс для метаданных
