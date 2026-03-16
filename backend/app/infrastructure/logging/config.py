@@ -4,9 +4,11 @@
 Определяет настройки для форматирования и обработчиков логов.
 """
 
+import json
 import logging
 import logging.config
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -14,7 +16,7 @@ from app.config import settings
 
 
 class StructuredFormatter(logging.Formatter):
-    """Форматировщик для структурированного логирования в JSON-подобном формате."""
+    """Форматировщик для структурированного логирования в JSON формате."""
 
     def __init__(self) -> None:
         """Инициализирует форматировщик."""
@@ -27,7 +29,7 @@ class StructuredFormatter(logging.Formatter):
             record: Запись лога.
 
         Returns:
-            Отформатированная строка.
+            Отформатированная JSON строка.
         """
         log_data: dict[str, Any] = {
             "timestamp": self.formatTime(record, self.datefmt),
@@ -43,12 +45,56 @@ class StructuredFormatter(logging.Formatter):
             log_data["exception"] = self.formatException(record.exc_info)
 
         if hasattr(record, "user_id"):
-            log_data["user_id"] = record.user_id  # type: ignore[attr-defined]
+            log_data["user_id"] = record.user_id
 
         if hasattr(record, "request_id"):
-            log_data["request_id"] = record.request_id  # type: ignore[attr-defined]
+            log_data["request_id"] = record.request_id
 
-        return str(log_data).replace("'", '"')
+        # Добавляем дополнительные поля из extra
+        for key, value in record.__dict__.items():
+            if key not in {
+                "name",
+                "msg",
+                "args",
+                "levelname",
+                "levelno",
+                "pathname",
+                "filename",
+                "module",
+                "exc_info",
+                "exc_text",
+                "stack_info",
+                "lineno",
+                "funcName",
+                "created",
+                "msecs",
+                "relativeCreated",
+                "thread",
+                "threadName",
+                "processName",
+                "process",
+                "message",
+                "asctime",
+                "user_id",
+                "request_id",
+            }:
+                log_data[key] = value
+
+        return json.dumps(log_data, ensure_ascii=False, default=self._json_serializer)
+
+    @staticmethod
+    def _json_serializer(obj: Any) -> Any:
+        """Сериализатор для нестандартных типов.
+
+        Args:
+            obj: Объект для сериализации.
+
+        Returns:
+            Сериализованное значение.
+        """
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        raise TypeError(f"Type {type(obj)} is not JSON serializable")
 
 
 class ColoredFormatter(logging.Formatter):
