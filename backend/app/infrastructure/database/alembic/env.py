@@ -15,9 +15,6 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 # Импортируем Base и таблицы (mapper регистрируется автоматически при импорте)
 from app.infrastructure.database.table import Base
 
-# Импортируем конфигурацию приложения (будет создана позже)
-# from app.config import settings
-
 # ============================================================
 # Настройка логирования
 # ============================================================

@@ -22,18 +22,15 @@ from app.infrastructure.database.table import (
 )
 
 __all__ = [
-    # Базовый класс
-    "Base",
-    # Сущности (domain models)
-    "User",
-    "Document",
     "Analysis",
-    "Report",
+    "Base",
+    "Document",
     "History",
-    # Таблицы (SQLAlchemy Table)
-    "users_table",
-    "documents_table",
+    "Report",
+    "User",
     "analyses_table",
-    "reports_table",
+    "documents_table",
     "history_table",
+    "reports_table",
+    "users_table",
 ]

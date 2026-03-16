@@ -5,7 +5,7 @@ SQLAlchemy Mapper для связывания Table с domain сущностям
 mapper использует автоматическое сопоставление.
 """
 
-from sqlalchemy.orm import mapper
+from sqlalchemy.orm import registry
 
 from app.core.domain import Analysis, Document, History, Report, User
 
@@ -18,8 +18,11 @@ from .user import users_table
 # ============================================================
 # Mapper: связывает Table с domain сущностью
 # ============================================================
-mapper(User, users_table)
-mapper(Document, documents_table)
-mapper(Analysis, analyses_table)
-mapper(Report, reports_table)
-mapper(History, history_table)
+mapper_registry = registry()
+
+# Регистрируем все мапперы
+mapper_registry.map_imperatively(User, users_table)
+mapper_registry.map_imperatively(Document, documents_table)
+mapper_registry.map_imperatively(Analysis, analyses_table)
+mapper_registry.map_imperatively(Report, reports_table)
+mapper_registry.map_imperatively(History, history_table)

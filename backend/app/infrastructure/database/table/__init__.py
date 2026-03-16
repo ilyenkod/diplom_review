@@ -16,12 +16,10 @@ from .report import reports_table
 from .user import users_table
 
 __all__ = [
-    # Базовый класс для метаданных
-    "Base",
-    # Таблицы (SQLAlchemy Table)
-    "users_table",
-    "documents_table",
     "analyses_table",
-    "reports_table",
+    "Base",
+    "documents_table",
     "history_table",
+    "reports_table",
+    "users_table",
 ]
