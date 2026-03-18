@@ -19,7 +19,7 @@ from app.core.domain.user import User
 T = TypeVar("T", User, Document, Analysis, Report, History)
 
 
-class BaseRepository(ABC, Generic[T]):  # type: ignore[misc]
+class BaseRepository(ABC, Generic[T]):  # type: ignore[misc]  # noqa: TYP001
     """Базовый интерфейс репозитория."""
 
     @abstractmethod
