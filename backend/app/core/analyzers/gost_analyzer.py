@@ -1,0 +1,58 @@
+"""
+Анализатор соответствия ГОСТ.
+
+Проверяет соответствие стандартам оформления.
+"""
+
+from app.core.analyzers.base_analyzer import BaseAnalyzer
+from app.core.const import AnalysisCriteria
+from app.core.interfaces.llm import LLMClient, Message
+from app.infrastructure.llm.prompts import get_prompt
+from app.infrastructure.logging import AppLogger
+
+
+class GOSTAnalyzer(BaseAnalyzer):
+    """Анализатор соответствия ГОСТ дипломной работы.
+
+    Проверяет:
+    - Оформление страниц (поля, нумерация)
+    - Правильность оформления заголовков
+    - Соответствие шрифтового оформления
+    - Правильность отступов и интервалов
+    - Оформление списка литературы
+    - Оформление таблиц и рисунков
+    """
+
+    def __init__(self, llm_client: LLMClient, logger: AppLogger) -> None:
+        """Инициализирует анализатор соответствия ГОСТ.
+
+        Args:
+            llm_client: Клиент LLM.
+            logger: Логгер приложения.
+        """
+        super().__init__(
+            name=AnalysisCriteria.GOST,
+            description=AnalysisCriteria.DESCRIPTIONS[AnalysisCriteria.GOST],
+            llm_client=llm_client,
+            logger=logger,
+            max_score=AnalysisCriteria.MAX_SCORES[AnalysisCriteria.GOST],
+        )
+        self._prompt = get_prompt(AnalysisCriteria.GOST)
+
+    def _build_prompt(self, text: str, **kwargs: object) -> list[Message]:
+        """Строит промпт для анализа соответствия ГОСТ.
+
+        Args:
+            text: Текст документа.
+            **kwargs: Дополнительные параметры.
+
+        Returns:
+            Список сообщений для LLM.
+        """
+        return [
+            Message(role="system", content=self._prompt.system_prompt),
+            Message(
+                role="user",
+                content=f"Проанализируй соответствие ГОСТ в следующем тексте:\n\n{text}",
+            ),
+        ]
