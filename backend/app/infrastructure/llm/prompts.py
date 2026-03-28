@@ -18,6 +18,216 @@ class AnalyzerPrompt:
     output_format: str
 
 
+@dataclass
+class PromptTemplate:
+    """Шаблон промпта для LLM."""
+
+    system_prompt: str
+    user_template: str
+
+    def format_user_prompt(self, **kwargs: str) -> str:
+        """Форматирует пользовательский промпт с подстановкой переменных.
+
+        Args:
+            **kwargs: Переменные для подстановки в шаблон.
+
+        Returns:
+            Отформатированный пользовательский промпт.
+        """
+        return self.user_template.format(**kwargs)
+
+
+class PromptBuilder:
+    """Билдер для создания промптов."""
+
+    def __init__(self) -> None:
+        """Инициализирует билдер."""
+        self._system_prompt: str | None = None
+        self._context: dict[str, str] | None = None
+        self._requirements: list[str] = []
+        self._examples: list[str] = []
+        self._constraints: list[str] = []
+        self._output_format: str | None = None
+
+    def set_system_prompt(self, prompt: str) -> "PromptBuilder":
+        """Устанавливает системный промпт.
+
+        Args:
+            prompt: Системный промпт.
+
+        Returns:
+            Сам билдер для цепочки вызовов.
+        """
+        self._system_prompt = prompt
+        return self
+
+    def set_context(self, context: dict[str, str]) -> "PromptBuilder":
+        """Устанавливает контекст.
+
+        Args:
+            context: Контекст в виде словаря.
+
+        Returns:
+            Сам билдер для цепочки вызовов.
+        """
+        self._context = context
+        return self
+
+    def add_requirement(self, requirement: str) -> "PromptBuilder":
+        """Добавляет требование.
+
+        Args:
+            requirement: Требование.
+
+        Returns:
+            Сам билдер для цепочки вызовов.
+        """
+        self._requirements.append(requirement)
+        return self
+
+    def add_example(self, example: str) -> "PromptBuilder":
+        """Добавляет пример.
+
+        Args:
+            example: Пример.
+
+        Returns:
+            Сам билдер для цепочки вызовов.
+        """
+        self._examples.append(example)
+        return self
+
+    def add_constraint(self, constraint: str) -> "PromptBuilder":
+        """Добавляет ограничение.
+
+        Args:
+            constraint: Ограничение.
+
+        Returns:
+            Сам билдер для цепочки вызовов.
+        """
+        self._constraints.append(constraint)
+        return self
+
+    def set_output_format(self, format: str) -> "PromptBuilder":
+        """Устанавливает формат вывода.
+
+        Args:
+            format: Формат вывода.
+
+        Returns:
+            Сам билдер для цепочки вызовов.
+        """
+        self._output_format = format
+        return self
+
+    def build(self) -> PromptTemplate:
+        """Собирает промпт.
+
+        Returns:
+            Шаблон промпта.
+
+        Raises:
+            ValueError: Если не установлен системный промпт.
+        """
+        if not self._system_prompt:
+            msg = "System prompt is required"
+            raise ValueError(msg)
+
+        user_parts = []
+
+        if self._context:
+            user_parts.append("Context:")
+            for key, value in self._context.items():
+                user_parts.append(f"  {key}: {value}")
+
+        if self._requirements:
+            user_parts.append("\nRequirements:")
+            for req in self._requirements:
+                user_parts.append(f"  - {req}")
+
+        if self._examples:
+            user_parts.append("\nExamples:")
+            for example in self._examples:
+                user_parts.append(f"  {example}")
+
+        if self._constraints:
+            user_parts.append("\nConstraints:")
+            for constraint in self._constraints:
+                user_parts.append(f"  - {constraint}")
+
+        if self._output_format:
+            user_parts.append(f"\nOutput format: {self._output_format}")
+
+        user_parts.append("\nText to analyze: {text}")
+
+        user_template = "\n".join(user_parts)
+
+        return PromptTemplate(
+            system_prompt=self._system_prompt,
+            user_template=user_template,
+        )
+
+
+def get_prompt_for_analyzer(name: str) -> PromptTemplate:
+    """Возвращает промпт для анализатора по имени (в виде PromptTemplate).
+
+    Args:
+        name: Имя анализатора.
+
+    Returns:
+        Шаблон промпта анализатора.
+
+    Raises:
+        ValueError: Если анализатор не найден.
+    """
+    analyzer_map: dict[str, tuple[str, str]] = {
+        "structure": (
+            "Ты - эксперт по анализу структуры дипломных работ.",
+            "Анализируй структуру дипломной работы.",
+        ),
+        "purpose": (
+            "Ты - эксперт по анализу цели и задач дипломной работы.",
+            "Анализируй цель и задачи дипломной работы.",
+        ),
+        "relevance": (
+            "Ты - эксперт по оценке актуальности тем дипломных работ.",
+            "Оцени актуальность темы дипломной работы.",
+        ),
+        "conclusions": (
+            "Ты - эксперт по анализу заключения дипломных работ.",
+            "Анализируй заключение и выводы дипломной работы.",
+        ),
+        "logic": (
+            "Ты - эксперт по анализу логической структуры дипломных работ.",
+            "Анализируй логическую связность дипломной работы.",
+        ),
+        "style": (
+            "Ты - эксперт по научному стилю изложения.",
+            "Анализируй соответствие научному стилю.",
+        ),
+        "citations": (
+            "Ты - эксперт по оформлению библиографических ссылок.",
+            "Анализируй правильность цитирования.",
+        ),
+        "gost": (
+            "Ты - эксперт по оформлению документов по ГОСТ.",
+            "Анализируй соответствие оформлению по ГОСТ.",
+        ),
+    }
+
+    if name not in analyzer_map:
+        msg = "Unknown analyzer"
+        raise ValueError(msg)
+
+    system_prompt, user_instruction = analyzer_map[name]
+
+    return PromptTemplate(
+        system_prompt=system_prompt,
+        user_template=f"{user_instruction}\n\nText: {{text}}",
+    )
+
+
 def get_prompt(name: str) -> AnalyzerPrompt:
     """Возвращает промпт для анализатора по имени.
 
@@ -74,7 +284,7 @@ def _structure_prompt() -> AnalyzerPrompt:
     "has_chapters": true/false,
     "has_conclusions": true/false,
     "has_bibliography": true/false,
-    "has_appendices": true/false
+    "has_appendices": false
   }
 }""",
         output_format="JSON с оценкой, списком найденных/отсутствующих разделов и комментариями",
@@ -168,7 +378,7 @@ def _conclusions_prompt() -> AnalyzerPrompt:
   "details": {
     "conclusions_found": ["Вывод 1", "Вывод 2", ...],
     "missing_conclusions_for_tasks": ["Задача без вывода", ...],
-    "has_recommendations": true/false
+    "has_recommendations": false
   }
 }""",
         output_format="JSON с оценкой выводов и их анализом",

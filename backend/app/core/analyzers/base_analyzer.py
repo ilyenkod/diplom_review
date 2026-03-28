@@ -186,21 +186,22 @@ class BaseAnalyzer(ABC):
             RuntimeError: Если запрос к LLM завершился с ошибкой.
         """
         try:
-            from app.config import settings
+            from app.config import get_settings
             from app.core.interfaces.llm import LLMConfig
 
+            llm_settings = get_settings().llm
             model = (
-                settings.llm.openai_model
-                if settings.llm.provider == "openai"
-                else settings.llm.anthropic_model
+                llm_settings.openai_model
+                if llm_settings.provider == "openai"
+                else llm_settings.anthropic_model
             )
 
             config = LLMConfig(
                 model=model,
-                max_tokens=settings.llm.max_tokens,
-                temperature=settings.llm.temperature,
-                timeout=settings.llm.timeout,
-                max_retries=settings.llm.max_retries,
+                max_tokens=llm_settings.max_tokens,
+                temperature=llm_settings.temperature,
+                timeout=llm_settings.timeout,
+                max_retries=llm_settings.max_retries,
             )
 
             # For testing compatibility: check if completion method is mocked

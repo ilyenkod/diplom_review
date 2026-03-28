@@ -13,7 +13,7 @@ import boto3
 from botocore.client import Config
 from botocore.exceptions import ClientError
 
-from app.config import settings
+from app.config import get_settings
 from app.core.interfaces.storage import FileMetadata, S3Storage, StorageResult
 from app.infrastructure.logging import AppLogger
 
@@ -28,15 +28,16 @@ class S3StorageImpl(S3Storage):
             logger: Логгер приложения.
         """
         self._logger = logger
-        self._bucket_name = settings.storage.s3_bucket_name
-        self._region = settings.storage.s3_region
+        storage_settings = get_settings().storage
+        self._bucket_name = storage_settings.s3_bucket_name
+        self._region = storage_settings.s3_region
 
         # Инициализация S3 клиента
         self._client = boto3.client(
             "s3",
-            endpoint_url=settings.storage.s3_endpoint_url,
-            aws_access_key_id=settings.storage.s3_access_key,
-            aws_secret_access_key=settings.storage.s3_secret_key,
+            endpoint_url=storage_settings.s3_endpoint_url,
+            aws_access_key_id=storage_settings.s3_access_key,
+            aws_secret_access_key=storage_settings.s3_secret_key,
             region_name=self._region,
             config=Config(signature_version="s3v4"),
         )
@@ -46,7 +47,7 @@ class S3StorageImpl(S3Storage):
             extra={
                 "bucket": self._bucket_name,
                 "region": self._region,
-                "endpoint": settings.storage.s3_endpoint_url,
+                "endpoint": storage_settings.s3_endpoint_url,
             },
         )
 

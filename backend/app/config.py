@@ -4,6 +4,7 @@
 Использует Pydantic Settings для загрузки настроек из переменных окружения.
 """
 
+import os
 from functools import lru_cache
 from typing import Literal
 
@@ -98,8 +99,6 @@ class LLMSettings(BaseSettings):
     def validate_provider(cls, v: str, info: FieldValidationInfo) -> str:
         """Проверяет наличие API ключа для выбранного провайдера."""
         # Skip validation in testing mode
-        import os
-
         if os.getenv("TESTING") == "1" or os.getenv("PYTEST_CURRENT_TEST"):
             return v
 
@@ -229,7 +228,11 @@ class ApplicationSettings(BaseSettings):
 class Settings(BaseSettings):
     """Главный класс настроек приложения."""
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=[".env.test", ".env"] if os.getenv("TESTING") == "1" else [".env"],
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
     database: DatabaseSettings = Field(default_factory=DatabaseSettings)
     redis: RedisSettings = Field(default_factory=RedisSettings)
@@ -244,6 +247,3 @@ class Settings(BaseSettings):
 def get_settings() -> Settings:
     """Возвращает закэшированный экземпляр настроек."""
     return Settings()
-
-
-settings = get_settings()

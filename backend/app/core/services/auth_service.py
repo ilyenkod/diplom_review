@@ -6,7 +6,7 @@
 
 from dataclasses import dataclass
 
-from app.config import settings
+from app.config import get_settings
 from app.core.const import UserRole
 from app.core.domain import User
 from app.core.exceptions import (
@@ -82,7 +82,7 @@ class AuthService:
         # Валидируем сложность пароля
         if not validate_password_strength(password):
             raise ValidationError(
-                f"Password is too short. Minimum length: {settings.security.password_min_length}"
+                f"Password is too short. Minimum length: {get_settings().security.password_min_length}"
             )
 
         # Создаем нового пользователя

@@ -10,7 +10,7 @@ from typing import Any
 from redis.asyncio import Redis
 from redis.asyncio.connection import ConnectionPool
 
-from app.config import settings
+from app.config import get_settings
 from app.core.interfaces.cache import CacheClient
 from app.infrastructure.logging import AppLogger
 
@@ -30,10 +30,11 @@ class RedisCacheClient(CacheClient):
 
     async def connect(self) -> None:
         """Подключается к Redis."""
+        redis_settings = get_settings().redis
         self._pool = ConnectionPool.from_url(
-            settings.redis.url,
-            max_connections=settings.redis.max_connections,
-            decode_responses=settings.redis.decode_responses,
+            redis_settings.url,
+            max_connections=redis_settings.max_connections,
+            decode_responses=redis_settings.decode_responses,
         )
         self._client = Redis(connection_pool=self._pool)
         self._logger.info("Connected to Redis")

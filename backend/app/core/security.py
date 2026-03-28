@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any
 from jose import JWTError, jwt  # type: ignore[import-untyped]
 from passlib.context import CryptContext
 
-from app.config import settings
+from app.config import get_settings
 
 if TYPE_CHECKING:
     from passlib.context import CryptContext as CryptContextType
@@ -57,21 +57,22 @@ def create_access_token(
     Returns:
         Закодированный JWT токен.
     """
+    security_settings = get_settings().security
     to_encode = payload.copy()
 
     if expires_delta:
         expire = datetime.now(UTC) + expires_delta
     else:
         expire = datetime.now(UTC) + timedelta(
-            minutes=settings.security.access_token_expire_minutes,
+            minutes=security_settings.access_token_expire_minutes,
         )
 
     to_encode.update({"exp": expire, "type": "access"})
 
     encoded_jwt = jwt.encode(
         to_encode,
-        settings.security.secret_key,
-        algorithm=settings.security.algorithm,
+        security_settings.secret_key,
+        algorithm=security_settings.algorithm,
     )
     return encoded_jwt  # type: ignore[no-any-return]
 
@@ -89,21 +90,22 @@ def create_refresh_token(
     Returns:
         Закодированный JWT токен.
     """
+    security_settings = get_settings().security
     to_encode = payload.copy()
 
     if expires_delta:
         expire = datetime.now(UTC) + expires_delta
     else:
         expire = datetime.now(UTC) + timedelta(
-            days=settings.security.refresh_token_expire_days,
+            days=security_settings.refresh_token_expire_days,
         )
 
     to_encode.update({"exp": expire, "type": "refresh"})
 
     encoded_jwt = jwt.encode(
         to_encode,
-        settings.security.secret_key,
-        algorithm=settings.security.algorithm,
+        security_settings.secret_key,
+        algorithm=security_settings.algorithm,
     )
     return encoded_jwt  # type: ignore[no-any-return]
 
@@ -117,11 +119,12 @@ def decode_token(token: str) -> dict[str, Any] | None:
     Returns:
         Декодированные данные токена или None при ошибке.
     """
+    security_settings = get_settings().security
     try:
         payload = jwt.decode(
             token,
-            settings.security.secret_key,
-            algorithms=[settings.security.algorithm],
+            security_settings.secret_key,
+            algorithms=[security_settings.algorithm],
         )
         return payload  # type: ignore[no-any-return]
     except JWTError:
@@ -228,6 +231,6 @@ def validate_password_strength(password: str) -> bool:
     Returns:
         True если пароль достаточно сложный, иначе False.
     """
-    min_length = settings.security.password_min_length
+    min_length = get_settings().security.password_min_length
 
     return len(password) >= min_length

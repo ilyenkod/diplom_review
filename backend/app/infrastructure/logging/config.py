@@ -12,7 +12,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from app.config import settings
+from app.config import get_settings
 
 
 class StructuredFormatter(logging.Formatter):
@@ -138,7 +138,7 @@ def get_log_level() -> int:
     Returns:
         Уровень логирования (logging.DEBUG, logging.INFO, и т.д.).
     """
-    level_name = settings.app.log_level.upper()
+    level_name = get_settings().app.log_level.upper()
     return getattr(logging, level_name, logging.INFO)
 
 

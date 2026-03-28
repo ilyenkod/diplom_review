@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 
 # Set up environment variables for testing BEFORE importing app modules
+os.environ.setdefault("TESTING", "1")
 os.environ.setdefault("LLM_PROVIDER", "openai")
 os.environ.setdefault("LLM_OPENAI_API_KEY", "test-key-for-testing")
 os.environ.setdefault("LLM_ANTHROPIC_API_KEY", "test-key-for-testing")

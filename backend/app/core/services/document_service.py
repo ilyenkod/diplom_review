@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
-from app.config import settings
+from app.config import get_settings
 from app.core.const import FileFormats
 from app.core.domain import Document
 from app.core.exceptions import (
@@ -120,6 +120,7 @@ class DocumentService:
         metadata = self._extract_metadata(process_result)
 
         # Создаем документ в БД
+        storage_settings = get_settings().storage
         document = Document(
             id=self._generate_document_id(),
             user_id=user_id,
@@ -127,8 +128,8 @@ class DocumentService:
             original_filename=original_filename,
             file_size=file_size,
             file_type=file_type,
-            file_path=storage_key if settings.storage.backend == "local" else None,
-            s3_key=storage_key if settings.storage.backend == "s3" else None,
+            file_path=storage_key if storage_settings.backend == "local" else None,
+            s3_key=storage_key if storage_settings.backend == "s3" else None,
             content=process_result.text,
             metadata=metadata,
             created_at=datetime.now(UTC),
@@ -246,7 +247,7 @@ class DocumentService:
             raise InvalidFileTypeError(extension, list(FileFormats.ALLOWED))
 
         # Проверяем размер файла
-        max_size = settings.upload.max_file_size
+        max_size = get_settings().upload.max_file_size
         if file_size > max_size:
             raise FileSizeExceededError(file_size, max_size)
 

@@ -11,7 +11,7 @@ import anthropic
 import openai
 from openai import AsyncOpenAI
 
-from app.config import settings
+from app.config import get_settings
 from app.core.interfaces.llm import (
     LLMClient,
     LLMConfig,
@@ -85,7 +85,7 @@ class OpenAILLMClient(LLMClient):
         self._config = config
         self._logger = logger
         self._client = AsyncOpenAI(
-            api_key=settings.llm.openai_api_key,
+            api_key=get_settings().llm.openai_api_key,
             timeout=config.timeout,
             max_retries=0,  # Управляем повторами сами
         )
