@@ -68,6 +68,15 @@ class AppComposite(BaseComposite):
         self._api_composite = APIComposite(logger)
         await self._api_composite.initialize()
 
+        # Настраиваем зависимости для API
+        self._api_composite.setup_dependencies(
+            session_manager=self._database_composite.session_manager,
+            cache_client=self._cache_composite.client,
+            llm_client=self._llm_composite.llm_client,
+            storage=self._storage_composite.storage,
+            app_composite=self,
+        )
+
         # Сохраняем зависимость
         self.set_dependency("api_composite", self._api_composite)
 

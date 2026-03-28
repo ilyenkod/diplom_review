@@ -5,9 +5,13 @@
 Запускается последним - зависит от всех остальных композитов.
 """
 
+from typing import Any
+
 from fastapi import FastAPI
 
-from app.config import settings
+from app.config import get_settings
+from app.infrastructure.api.deps import set_dependencies
+from app.infrastructure.api.deps_composites import set_composite_dependencies
 from app.infrastructure.logging import AppLogger
 from composites.base import BaseComposite
 
@@ -37,18 +41,18 @@ class APIComposite(BaseComposite):
             title="Diplom Review API",
             description="API для автоматизированной проверки дипломных работ с использованием ИИ",
             version="0.1.0",
-            docs_url="/docs" if settings.app.debug else None,
-            redoc_url="/redoc" if settings.app.debug else None,
-            openapi_url="/openapi.json" if settings.app.debug else None,
+            docs_url="/docs" if get_settings().app.debug else None,
+            redoc_url="/redoc" if get_settings().app.debug else None,
+            openapi_url="/openapi.json" if get_settings().app.debug else None,
         )
 
-        # Регистрация роутеров (пока пустых)
+        # Регистрация роутеров
         self._register_routes()
 
-        # Настройка middleware (пока пустых)
+        # Настройка middleware
         self._setup_middleware()
 
-        # Внедрение зависимостей
+        # Внедрение зависимостей (делегируется в setup_dependencies из router)
         self._setup_dependencies()
 
         # Сохраняем зависимость
@@ -62,8 +66,6 @@ class APIComposite(BaseComposite):
 
         Полная реализация будет в фазе 5 и последующих.
         """
-        # Роутеры будут зарегистрированы здесь
-        # Например: self._app.include_router(auth_router, prefix="/api/v1/auth")
         self._logger.info("Routes registered (empty for now)")
 
     def _setup_middleware(self) -> None:
@@ -83,6 +85,26 @@ class APIComposite(BaseComposite):
         # Зависимости будут настроены здесь
         # Например: get_db, get_cache, get_current_user
         self._logger.info("Dependencies setup (empty for now)")
+
+    def setup_dependencies(
+        self,
+        session_manager: Any,
+        cache_client: Any,
+        llm_client: Any,
+        storage: Any,
+        app_composite: Any,
+    ) -> None:
+        """Настраивает зависимости для внедрения в FastAPI.
+
+        Args:
+            session_manager: Менеджер сессий базы данных.
+            cache_client: Клиент кэша.
+            llm_client: Клиент LLM.
+            storage: Хранилище файлов.
+            app_composite: Основной композит приложения.
+        """
+        set_dependencies(session_manager, cache_client, llm_client)
+        set_composite_dependencies(app_composite, self._logger, storage)
 
     async def start(self) -> None:
         """Запускает компоненты API."""
@@ -126,7 +148,9 @@ class APIComposite(BaseComposite):
         if not self._initialized:
             msg = "API composite is not initialized"
             raise RuntimeError(msg)
-        return self.get_dependency("app")
+        app_value = self.get_dependency("app")
+        assert isinstance(app_value, FastAPI)
+        return app_value
 
     def get_app(self) -> FastAPI:
         """Возвращает FastAPI приложение (синхронный метод).
@@ -141,4 +165,6 @@ class APIComposite(BaseComposite):
         if not self._initialized:
             msg = "API composite is not initialized"
             raise RuntimeError(msg)
-        return self.get_dependency("app")
+        app_value = self.get_dependency("app")
+        assert isinstance(app_value, FastAPI)
+        return app_value

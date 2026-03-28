@@ -15,8 +15,8 @@ from app.config import get_settings
 from app.core.const import FileFormats
 from app.core.domain import Document, User
 from app.core.exceptions import (
-    DocumentValidationError,
     DocumentProcessingError,
+    DocumentValidationError,
     InactiveUserError,
     InvalidCredentialsError,
     InvalidFileTypeError,

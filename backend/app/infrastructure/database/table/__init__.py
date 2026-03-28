@@ -16,8 +16,8 @@ from .report import reports_table
 from .user import users_table
 
 __all__ = [
-    "analyses_table",
     "Base",
+    "analyses_table",
     "documents_table",
     "history_table",
     "reports_table",

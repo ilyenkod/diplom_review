@@ -10,13 +10,13 @@ from composites.logging_composite import LoggingComposite
 from composites.storage_composite import StorageComposite
 
 __all__ = [
-    "BaseComposite",
-    "CompositeDependencyError",
-    "LoggingComposite",
-    "DatabaseComposite",
-    "CacheComposite",
-    "LLMComposite",
-    "StorageComposite",
     "APIComposite",
     "AppComposite",
+    "BaseComposite",
+    "CacheComposite",
+    "CompositeDependencyError",
+    "DatabaseComposite",
+    "LLMComposite",
+    "LoggingComposite",
+    "StorageComposite",
 ]
