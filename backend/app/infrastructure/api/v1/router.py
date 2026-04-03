@@ -12,9 +12,9 @@ logger = get_logger("api.v1.router")
 def include_subrouters() -> None:
     """Подключает подроутеры к v1 роутеру.
 
-    Заглушки для фазы 5, полная реализация будет в фазах 8 и 10.
+    Реализация фазы 10: API - анализ, отчеты и история.
     """
-    logger.info("Including subrouters (stubs for phase 5)")
+    logger.info("Including subrouters (phase 10 implementation)")
     router.include_router(auth.router, prefix="/auth", tags=["auth"])
     router.include_router(documents.router, prefix="/documents", tags=["documents"])
     router.include_router(analysis.router, prefix="/analysis", tags=["analysis"])
