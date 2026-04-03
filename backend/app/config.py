@@ -9,7 +9,7 @@ from functools import lru_cache
 from typing import Literal
 
 from pydantic import Field, field_validator
-from pydantic_core.core_schema import FieldValidationInfo
+from pydantic_core.core_schema import ValidationInfo
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -52,7 +52,7 @@ class RedisSettings(BaseSettings):
 class LLMSettings(BaseSettings):
     """Настройки LLM API."""
 
-    provider: Literal["openai", "anthropic"] = Field(
+    provider: Literal["openai", "anthropic", "stub"] = Field(
         default="openai",
         description="Провайдер LLM",
     )
@@ -96,10 +96,14 @@ class LLMSettings(BaseSettings):
 
     @field_validator("provider")
     @classmethod
-    def validate_provider(cls, v: str, info: FieldValidationInfo) -> str:
+    def validate_provider(cls, v: str, info: ValidationInfo) -> str:
         """Проверяет наличие API ключа для выбранного провайдера."""
         # Skip validation in testing mode
         if os.getenv("TESTING") == "1" or os.getenv("PYTEST_CURRENT_TEST"):
+            return v
+
+        # stub provider doesn't need API key
+        if v == "stub":
             return v
 
         if v == "openai" and not info.data.get("openai_api_key"):
