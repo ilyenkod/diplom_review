@@ -4,10 +4,6 @@
 Реализует интерфейс UserRepository для работы c пользователями в БД.
 """
 
-from typing import Any, cast
-
-from sqlalchemy import update
-from sqlalchemy.engine import CursorResult
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.domain import User
@@ -84,8 +80,9 @@ class UserRepository(BaseRepository[User], UserRepositoryInterface):
         Returns:
             True если обновлено, False если не найдено.
         """
-        stmt = update(self._table).where(self._table.c.id == user_id).values(is_active=is_active)
-        result = await self._session.execute(stmt)
+        user = await self._session.get(User, user_id)
+        if user is None:
+            return False
+        user.is_active = is_active
         await self._session.flush()
-        result_cast = cast(CursorResult[Any], result)
-        return result_cast.rowcount > 0
+        return True

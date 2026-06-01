@@ -4,10 +4,9 @@
 Реализует интерфейс AnalysisRepository для работы c анализами в БД.
 """
 
-from typing import Any, cast
+from typing import Any
 
-from sqlalchemy import select, update
-from sqlalchemy.engine import CursorResult
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.domain import Analysis
@@ -73,11 +72,12 @@ class AnalysisRepository(BaseRepository[Analysis], AnalysisRepositoryInterface):
         Returns:
             True если обновлено, False если не найдено.
         """
-        stmt = update(self._table).where(self._table.c.id == analysis_id).values(status=status)
-        result = await self._session.execute(stmt)
+        analysis = await self._session.get(Analysis, analysis_id)
+        if analysis is None:
+            return False
+        analysis.status = status
         await self._session.flush()
-        result_cast = cast(CursorResult[Any], result)
-        return result_cast.rowcount > 0
+        return True
 
     async def update_result(
         self, analysis_id: str, overall_score: float, results: dict[str, Any]
@@ -92,15 +92,13 @@ class AnalysisRepository(BaseRepository[Analysis], AnalysisRepositoryInterface):
         Returns:
             True если обновлено, False если не найдено.
         """
-        stmt = (
-            update(self._table)
-            .where(self._table.c.id == analysis_id)
-            .values(overall_score=overall_score, results=results)
-        )
-        result = await self._session.execute(stmt)
+        analysis = await self._session.get(Analysis, analysis_id)
+        if analysis is None:
+            return False
+        analysis.overall_score = overall_score
+        analysis.results = results
         await self._session.flush()
-        result_cast = cast(CursorResult[Any], result)
-        return result_cast.rowcount > 0
+        return True
 
     async def get_latest_by_document_id(self, document_id: str) -> Analysis | None:
         """Возвращает последний анализ документа.

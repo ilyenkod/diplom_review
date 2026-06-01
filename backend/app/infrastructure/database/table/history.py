@@ -18,9 +18,7 @@ from sqlalchemy import (
     Table,
     UniqueConstraint,
 )
-from sqlalchemy.dialects.postgresql import JSONB
-
-from .base import Base
+from .base import Base, JSONBType
 
 # ============================================================
 # Описание таблицы history (SQLAlchemy Table)
@@ -56,7 +54,7 @@ history_table = Table(
     ),
     Column(
         "changes_summary",
-        JSONB,
+        JSONBType,
         nullable=False,
         default={},
         comment="Сводка изменений между версиями",

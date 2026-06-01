@@ -18,9 +18,7 @@ from sqlalchemy import (
     Table,
     Text,
 )
-from sqlalchemy.dialects.postgresql import JSONB
-
-from .base import Base
+from .base import Base, JSONBType
 
 # ============================================================
 # Описание таблицы documents (SQLAlchemy Table)
@@ -85,7 +83,7 @@ documents_table = Table(
     ),
     Column(
         "metadata",
-        JSONB,
+        JSONBType,
         nullable=False,
         default={},
         comment="Дополнительные метаданные документа (author, title, pages_count и т.д.)",

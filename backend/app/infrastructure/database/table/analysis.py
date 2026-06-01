@@ -18,9 +18,7 @@ from sqlalchemy import (
     Table,
     Text,
 )
-from sqlalchemy.dialects.postgresql import JSONB
-
-from .base import Base
+from .base import Base, JSONBType
 
 # ============================================================
 # Описание таблицы analyses (SQLAlchemy Table)
@@ -56,7 +54,7 @@ analyses_table = Table(
     ),
     Column(
         "results",
-        JSONB,
+        JSONBType,
         nullable=False,
         default={},
         comment="Результаты анализа по каждому критерию",

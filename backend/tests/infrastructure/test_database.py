@@ -329,7 +329,7 @@ class TestAnalysisRepository:
             analysis = Analysis(
                 id=f"analysis-{i}",
                 document_id="doc-123",
-                status=AnalysisStatus.COMPLETED.value,
+                status=AnalysisStatus.COMPLETED,
                 overall_score=7.0 + i,
             )
             await analysis_repository.create(analysis)
@@ -344,11 +344,11 @@ class TestAnalysisRepository:
         """Тестирует обновление статуса анализа."""
         await analysis_repository.create(sample_analysis)
 
-        await analysis_repository.update_status(sample_analysis.id, AnalysisStatus.FAILED.value)
+        await analysis_repository.update_status(sample_analysis.id, AnalysisStatus.FAILED)
 
         updated = await analysis_repository.get_by_id(sample_analysis.id)
         assert updated is not None
-        assert updated.status == AnalysisStatus.FAILED.value
+        assert updated.status == AnalysisStatus.FAILED
 
     @pytest.mark.asyncio
     async def test_update_result(self, analysis_repository, sample_analysis):

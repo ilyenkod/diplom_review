@@ -16,9 +16,7 @@ from sqlalchemy import (
     Table,
     Text,
 )
-from sqlalchemy.dialects.postgresql import JSONB
-
-from .base import Base
+from .base import Base, JSONBType
 
 # ============================================================
 # Описание таблицы reports (SQLAlchemy Table)
@@ -47,14 +45,14 @@ reports_table = Table(
     ),
     Column(
         "recommendations",
-        JSONB,
+        JSONBType,
         nullable=False,
         default=[],
         comment="Список рекомендаций для улучшения",
     ),
     Column(
         "supervisor_comments",
-        JSONB,
+        JSONBType,
         nullable=False,
         default=[],
         comment="Комментарии в стиле научного руководителя",
