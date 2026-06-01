@@ -1,7 +1,7 @@
 """Общие Pydantic схемы для API."""
 
 from datetime import datetime
-from typing import Any, TypeVar
+from typing import Any, Generic, TypeVar
 
 from pydantic import BaseModel, Field
 
@@ -19,8 +19,8 @@ class ErrorResponse(BaseModel):
 class ValidationErrorDetail(BaseModel):
     """Детали ошибки валидации."""
 
-    field: str = Field(..., description="Поле с ошибкой")  # noqa: RUF001
-    message: str = Field(..., description="Сообщение об ошибке")  # noqa: RUF001
+    field: str = Field(..., description="Поле с ошибкой")
+    message: str = Field(..., description="Сообщение об ошибке")
 
 
 class ValidationErrorResponse(BaseModel):
@@ -48,7 +48,7 @@ class PaginationMeta(BaseModel):
     has_prev: bool = Field(..., description="Есть ли предыдущая страница")
 
 
-class PaginatedResponse(BaseModel, generic_types=(T,)):  # type: ignore[valid-type]
+class PaginatedResponse(BaseModel, Generic[T]):
     """Схема ответа с пагинацией."""
 
     items: list[T] = Field(..., description="Список элементов")
@@ -66,4 +66,4 @@ class HealthCheckResponse(BaseModel):
 class SuccessResponse(BaseModel):
     """Схема успешного ответа."""
 
-    message: str = Field(..., description="Сообщение об успехе")  # noqa: RUF001
+    message: str = Field(..., description="Сообщение об успехе")
